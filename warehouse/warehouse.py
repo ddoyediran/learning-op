@@ -2,8 +2,7 @@
 
 # This is to solve an instance of the warehouse location problem. 
 
-#import pyomo.environ as pyo
-import pyomo.environ as pe 
+import pyomo.environ as pyo 
 
 from warehouseConcrete import create_warehouse_model
 
@@ -11,7 +10,7 @@ from warehouseConcrete import create_warehouse_model
 N = ['Stockholm', 'Solna', 'Eskiltuna'] # Warehouse location
 M = ['Vasteras', 'Nykoping', 'Esk', 'Stklh'] # Customers location
 
-# Cost of transportation from warehouse to the customers
+# Cost associated with serving each customers from the warehouse
 d = {
     ('Stockholm', 'Vasteras'): 1956,
     ('Stockholm', 'Nykoping'): 1606,
@@ -27,7 +26,17 @@ d = {
     ('Eskiltuna', 'Stklh'): 1236,
 }
 
-P = 2
+P = 2 # Number of warehouses needed
 
 # creating the Pyomo model
 model = create_warehouse_model(N, M, d, P)
+
+# creating the solver interface and solve the model
+solver = pyo.SolverFactory('glpk')
+res = solver.solve(model)
+
+# check if the result is optimal and if the status is ok
+pyo.assert_optimal_termination(res) 
+
+# Print the optimal warehouse locations
+model.y.pprint()
