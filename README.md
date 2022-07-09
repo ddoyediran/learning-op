@@ -2,9 +2,9 @@
 
 ## To get started, install the followings:
 
-Pyomo Framework: `run $ pip3 install pyomo`
+Pyomo Framework: Run `pip3 install pyomo` if you are using Python3 or run `pip install pyomo` if you are using Python2
 
-GLPK Solver: `run $ brew install glpk`
+GLPK Solver: Run `brew install glpk`
 
 ### Resources:
 
