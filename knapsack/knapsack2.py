@@ -1,3 +1,13 @@
+"""
+Tutorial source: https://github.com/brentertainer/pyomo-tutorials/blob/master/introduction/01-binary-knapsack.ipynb
+
+Mathematical model:
+Objective function: max 3x_1 + 4x_2 + 5x_3 + 8x_4 + 9x_5
+Constraints:
+Constraint 1: 2x_1 + 3x_2 + 4x_3 + 5x_4 + 9x_5 <= 20
+Constraint 2: x_1, x_2, x_3, x_4, x_5 E {0, 1}
+"""
+
 # Import framework
 import pyomo.environ as pe 
 import pyomo.opt as po 
