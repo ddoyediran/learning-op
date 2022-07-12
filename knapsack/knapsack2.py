@@ -15,4 +15,9 @@ c = {1: 3, 2: 4, 3 : 5, 4 : 8, 5 : 9} # Cost
 a = {1 : 2, 2 : 3, 3 : 4, 4 : 5, 5 : 9} # size
 b = 20
 
-# print(set(model.N))
+# Declaring and intialising the parameters
+model.c = pe.Param(model.N, initialize=c)
+model.a = pe.Param(model.N, initialize=a)
+model.b = pe.Param(initialize=b)
+
+# print(pe.value(model.b))
