@@ -52,7 +52,7 @@ c = {
     ("C", 10): 15,
 }
 
-max_hourly = 40 # maximum hour that each worker can work per week
+max_hours = 40 # maximum hour that each worker can work per week
 
 # Developing the model
 model = pe.ConcreteModel() # create the model
@@ -63,8 +63,29 @@ model.taks = pe.Set(initialize=tasks) # Set of tasks
 
 # Dfine the parameters
 model.c = pe.Param(model.workers, model.tasks, initialize=c, default=1000) # hours workers can complete tasks
-model.max_hours = pe.Param(initialize=max_hourly) # maximum hours each workers can work per week
+model.max_hours = pe.Param(initialize=max_hours) # maximum hours each workers can work per week
 
+
+# define the decision variables
+model.x = pe.Var(model.workers, model.tasks, domain=pe.Reals , bounds=(0,1))
+
+# Set the constraints
+expr = sum(model.c[w, t] * model.x[w, t] for w in model.workers for t in model.tasks)
+model.objective = pe.Objective(sense=pe.minimize, expr=expr)
+
+# maximum task done iat each time should be less than or equal to 1
+model.tasks_done = pe.ConstraintList()
+for t in model.tasks:
+    lhs = sum(model.x[w, t] for w in model.workers)
+    rhs = 1
+    model.tasks_done.add(lhs <= rhs)
+
+# Maximum hours each worker can work
+model.hour_limit = pe.ConstraintList()
+for w in model.workers:
+    lhs = sum(model.c[w, t] * model.x[w, t] for t in model.tasks)
+    rhs = model.max_hours
+    model.hour_limit.add(lhs <= rhs)
 
 
 
