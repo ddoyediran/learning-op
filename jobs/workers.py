@@ -12,44 +12,47 @@ The goal is to minimize the total time required to complete all the jobs.
 
 Data:
 
-Workers \ Tasks	1	2	3	4	5	6	7	8	9	10
+Workers / Tasks	1	2	3	4	5	6	7	8	9	10
 A	            -	7	3	-	-	18	13	6	-	9
 B	            12	5	-	12	4	22	-	17	13	-
 C	            18	-	6	8	10	-	19	-	8	15
 
 """
 
-# Import package
+# Import frameworks
 import pyomo.environ as pe 
 import pyomo.opt as po 
 import pandas as pd 
 
+# solver = po.SolverFactory('gurobi')
+solver = po.SolverFactory('glpk')
+
 # Define the data 
-workers = {"A", "B", "C"} # number of workers
+workers = {'A', 'B', 'C'} # number of workers
 tasks = set(range(1, 11)) # Number of available tasks
 
 # Hours each worker can work on each task - no data means worker can't work in that hour.
 c = {
-    ("A", 2): 7,
-    ("A", 3): 3,
-    ("A", 6): 18,
-    ("A", 7): 13,
-    ("A", 8): 6,
-    ("A", 10): 9,
-    ("B", 1): 12,
-    ("B", 2): 5,
-    ("B", 4): 12,
-    ("B", 5): 4,
-    ("B", 6): 22,
-    ("B", 8): 17,
-    ("B", 9): 13,
-    ("C", 1): 18,
-    ("C", 3): 6,
-    ("C", 4): 8,
-    ("C", 5): 10,
-    ("C", 7): 19,
-    ("C", 9): 8,
-    ("C", 10): 15,
+    ('A', 2): 7,
+    ('A', 3): 3,
+    ('A', 6): 18,
+    ('A', 7): 13,
+    ('A', 8): 6,
+    ('A', 10): 9,
+    ('B', 1): 12,
+    ('B', 2): 5,
+    ('B', 4): 12,
+    ('B', 5): 4,
+    ('B', 6): 22,
+    ('B', 8): 17,
+    ('B', 9): 13,
+    ('C', 1): 18,
+    ('C', 3): 6,
+    ('C', 4): 8,
+    ('C', 5): 10,
+    ('C', 7): 19,
+    ('C', 9): 8,
+    ('C', 10): 15,
 }
 
 max_hours = 40 # maximum hour that each worker can work per week
@@ -59,9 +62,9 @@ model = pe.ConcreteModel() # create the model
 
 # Define the set
 model.workers = pe.Set(initialize=workers) # Set of workers
-model.taks = pe.Set(initialize=tasks) # Set of tasks
+model.tasks = pe.Set(initialize=tasks) # Set of tasks
 
-# Dfine the parameters
+# Define the parameters
 model.c = pe.Param(model.workers, model.tasks, initialize=c, default=1000) # hours workers can complete tasks
 model.max_hours = pe.Param(initialize=max_hours) # maximum hours each workers can work per week
 
@@ -88,12 +91,15 @@ for w in model.workers:
     model.hour_limit.add(lhs <= rhs)
 
 # Solve and post-process
-solver = po.SolverFactory('gurobi')
+#solver = po.SolverFactory('gurobi')
+#solver = po.SolverFactory('glpk')
 results = solver.solve(model, tee= True)
 
+df = pd.DataFrame(index=pd.MultiIndex.from_tuples(model.x, names=['w', 't']))
+df['x'] = [pe.value(model.x[key]) for key in df.index]
+df['c'] = [model.c[key] for key in df.index]
 
+(df['c'] * df['x']).unstack('t')
+(df['c'] * df['x']).groupby('w').sum().to_frame()
+df['x'].groupby('t').sum().to_frame().T
 
-
-
-
-# solver = 
