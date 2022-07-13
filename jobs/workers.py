@@ -87,6 +87,13 @@ for w in model.workers:
     rhs = model.max_hours
     model.hour_limit.add(lhs <= rhs)
 
+# Solve and post-process
+solver = po.SolverFactory('gurobi')
+results = solver.solve(model, tee= True)
+
+
+
+
 
 
 # solver = 
